@@ -1,0 +1,57 @@
+{
+  "site": { "name": "Tamil Sangam" },
+  "nav": {
+    "home": "Home",
+    "gallery": "Gallery",
+    "events": "Events",
+    "contact": "Contact Us",
+    "admin": "Admin"
+  },
+  "language": {
+    "tamil": "தமிழ்",
+    "english": "English",
+    "switcherLabel": "Choose language"
+  },
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong"
+  },
+  "home": {
+    "title": "Welcome",
+    "empty": "No content has been added yet."
+  },
+  "gallery": {
+    "title": "Gallery",
+    "empty": "No gallery folders have been added yet.",
+    "noPhotos": "No photos in this folder yet."
+  },
+  "events": {
+    "title": "Events",
+    "empty": "No events are available right now.",
+    "signInPrompt": "Please sign in with your Google account to continue to this event's form.",
+    "signedInAs": "Signed in as {{name}}",
+    "signOut": "Sign out",
+    "openForm": "Open Form"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "empty": "No contact details have been added yet."
+  },
+  "admin": {
+    "title": "Admin",
+    "signInPrompt": "Sign in with the admin Google account to manage this site's content.",
+    "notAuthorized": "{{email}} is not an authorized admin account.",
+    "dashboardTitle": "Admin Dashboard",
+    "signedInAs": "Signed in as {{name}}",
+    "signOut": "Sign out",
+    "note": "Content is managed directly in Google Drive, Sheets and Forms. Use the links below to open them.",
+    "links": {
+      "driveRoot": "Open Drive Root Folder",
+      "homeSheet": "Open Home Sheet",
+      "contactSheet": "Open Contact Us Sheet",
+      "eventsFolder": "Open Events Folder (Forms)",
+      "galleryFolder": "Open Gallery Folder",
+      "appsScriptProject": "Open Apps Script Project"
+    }
+  }
+}
