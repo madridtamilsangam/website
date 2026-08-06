@@ -1,5 +1,5 @@
 import { APPS_SCRIPT_URL } from './config'
-import type { ContactEntry, EventForm, GalleryFolder, GalleryPhoto, HomeItem } from '../types/api'
+import type { CommitteeData, ContactEntry, EventForm, GalleryFolder, GalleryPhoto, HomeItem } from '../types/api'
 
 interface ApiEnvelope<T> {
   ok: boolean
@@ -72,4 +72,8 @@ export function getEventPrefillUrl(formId: string, name: string, email: string) 
 
 export function getContact() {
   return request<ContactEntry[]>('contact')
+}
+
+export function getCommittee() {
+  return request<CommitteeData>('committee')
 }

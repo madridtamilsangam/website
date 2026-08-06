@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { getHome } from '../services/api'
+import { LOGO_URL } from '../services/config'
 import type { HomeItem } from '../types/api'
 import Loading from '../components/Loading'
 import ErrorMessage from '../components/ErrorMessage'
@@ -29,6 +30,11 @@ export default function Home() {
 
   return (
     <section className="page home-page">
+      {LOGO_URL && (
+        <div className="home-hero">
+          <img src={LOGO_URL} alt="Organization Logo" className="hero-logo" />
+        </div>
+      )}
       <h1>{t('home.title')}</h1>
       {items.length === 0 && <p>{t('home.empty')}</p>}
       <div className="card-grid">

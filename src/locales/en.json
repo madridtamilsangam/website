@@ -5,6 +5,7 @@
     "gallery": "Gallery",
     "events": "Events",
     "contact": "Contact Us",
+    "committee": "Committee",
     "admin": "Admin"
   },
   "language": {
@@ -37,6 +38,11 @@
     "title": "Contact Us",
     "empty": "No contact details have been added yet."
   },
+  "committee": {
+    "title": "Committee",
+    "empty": "No committee members have been added yet.",
+    "year": "{{year}}"
+  },
   "admin": {
     "title": "Admin",
     "signInPrompt": "Sign in with the admin Google account to manage this site's content.",
@@ -53,5 +59,9 @@
       "galleryFolder": "Open Gallery Folder",
       "appsScriptProject": "Open Apps Script Project"
     }
+  },
+  "footer": {
+    "followUs": "Follow Us",
+    "allRightsReserved": "All rights reserved."
   }
 }

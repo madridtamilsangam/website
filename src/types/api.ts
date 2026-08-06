@@ -27,3 +27,22 @@ export interface ContactEntry {
   email: string
   role?: string
 }
+
+export interface CommitteeMember {
+  name: string
+  role: string
+  year: string
+  email?: string
+  phone?: string
+  imageUrl: string
+  socialLinks?: Record<string, string>
+}
+
+export interface CommitteeYear {
+  year: string
+  members: CommitteeMember[]
+}
+
+export interface CommitteeData {
+  years: CommitteeYear[]
+}

@@ -10,13 +10,16 @@
   --social-bg: rgba(244, 243, 236, 0.5);
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --shadow-lg:
+    rgba(0, 0, 0, 0.12) 0 20px 25px -5px, rgba(0, 0, 0, 0.08) 0 10px 10px -5px;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+  --heading: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+  --mono: ui-monospace, Consolas, 'Monaco', monospace;
+  --tamil: 'Noto Sans Tamil', var(--sans);
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
+  font: 16px/150% var(--sans);
+  letter-spacing: 0.16px;
   color-scheme: light dark;
   color: var(--text);
   background: var(--bg);
@@ -24,9 +27,19 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
 
-  @media (max-width: 1024px) {
+/* Tablet breakpoint: 768px and up */
+@media (min-width: 768px) {
+  :root {
     font-size: 16px;
+  }
+}
+
+/* Desktop breakpoint: 1024px and up */
+@media (min-width: 1024px) {
+  :root {
+    font-size: 17px;
   }
 }
 
@@ -43,6 +56,8 @@
     --social-bg: rgba(47, 48, 58, 0.5);
     --shadow:
       rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+    --shadow-lg:
+      rgba(0, 0, 0, 0.5) 0 20px 25px -5px, rgba(0, 0, 0, 0.3) 0 10px 10px -5px;
   }
 
   #social .button-icon {
@@ -63,32 +78,98 @@ body {
 }
 
 h1,
-h2 {
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--heading);
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-h);
+  margin: 0;
 }
 
 h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+  font-size: 42px;
+  line-height: 120%;
+  letter-spacing: -0.84px;
+  margin-bottom: 24px;
+}
+
+@media (min-width: 768px) {
+  h1 {
+    font-size: 48px;
+    letter-spacing: -0.96px;
+    margin-bottom: 28px;
   }
 }
+
+@media (min-width: 1024px) {
+  h1 {
+    font-size: 56px;
+    letter-spacing: -1.12px;
+    margin-bottom: 32px;
+  }
+}
+
 h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
+  font-size: 28px;
+  line-height: 130%;
+  letter-spacing: -0.28px;
+  margin-bottom: 16px;
+}
+
+@media (min-width: 768px) {
+  h2 {
+    font-size: 32px;
+    letter-spacing: -0.32px;
+    margin-bottom: 20px;
   }
 }
+
+@media (min-width: 1024px) {
+  h2 {
+    font-size: 36px;
+    letter-spacing: -0.36px;
+  }
+}
+
+h3 {
+  font-size: 22px;
+  line-height: 130%;
+  letter-spacing: -0.22px;
+  margin-bottom: 12px;
+}
+
+@media (min-width: 768px) {
+  h3 {
+    font-size: 24px;
+    letter-spacing: -0.24px;
+  }
+}
+
+h4 {
+  font-size: 18px;
+  line-height: 130%;
+  letter-spacing: -0.18px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+h5,
+h6 {
+  font-size: 16px;
+  line-height: 130%;
+  font-weight: 600;
+}
+
 p {
-  margin: 0;
+  margin: 0 0 12px 0;
+  line-height: 160%;
+}
+
+p:last-child {
+  margin-bottom: 0;
 }
 
 code,

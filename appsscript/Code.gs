@@ -14,9 +14,11 @@ const CONFIG = {
   SPREADSHEET_ID: "REPLACE_WITH_SPREADSHEET_ID",
   HOME_SHEET_NAME: "Home",
   CONTACT_SHEET_NAME: "ContactUs",
+  COMMITTEE_SHEET_NAME: "Committee",
   HOME_FOLDER_ID: "REPLACE_WITH_HOME_FOLDER_ID",
   GALLERY_ROOT_FOLDER_ID: "REPLACE_WITH_GALLERY_ROOT_FOLDER_ID",
   EVENTS_FOLDER_ID: "REPLACE_WITH_EVENTS_FOLDER_ID",
+  COMMITTEE_FOLDER_ID: "REPLACE_WITH_COMMITTEE_FOLDER_ID",
   CACHE_TTL_SECONDS: 21600, // 6 hours
 };
 
@@ -39,6 +41,9 @@ function doGet(e) {
         break;
       case "contact":
         data = getContactData();
+        break;
+      case "committee":
+        data = getCommitteeData();
         break;
       case "prefill-url":
         data = getPrefillUrl(
@@ -236,6 +241,112 @@ function getContactData() {
           role: roleIdx >= 0 ? String(row[roleIdx] || "") : "",
         };
       });
+  });
+}
+
+// ---- Committee ----
+function getCommitteeData() {
+  return withCache("committee", CONFIG.CACHE_TTL_SECONDS, function () {
+    const sheet = getSheet(CONFIG.COMMITTEE_SHEET_NAME);
+    const rows = sheet.getDataRange().getValues();
+    const header = rows.shift().map(function (h) {
+      return String(h).trim().toLowerCase();
+    });
+
+    // Standard columns
+    const nameIdx = header.indexOf("name");
+    const roleIdx = header.indexOf("role");
+    const yearIdx = header.indexOf("year");
+    const phoneIdx = header.indexOf("phone");
+    const emailIdx = header.indexOf("email");
+    const imageIdx = header.indexOf("imagefilename");
+
+    // Identify social media columns (any column not in the standard set)
+    const standardCols = [
+      "name",
+      "role",
+      "year",
+      "phone",
+      "email",
+      "imagefilename",
+    ];
+    const socialCols = header.filter(function (col) {
+      return standardCols.indexOf(col) === -1 && col.trim();
+    });
+
+    const folder = DriveApp.getFolderById(CONFIG.COMMITTEE_FOLDER_ID);
+
+    // Build members array with social links
+    const members = rows
+      .filter(function (row) {
+        return row[nameIdx];
+      })
+      .map(function (row) {
+        const imageFileName =
+          imageIdx >= 0 ? String(row[imageIdx] || "").trim() : "";
+        const socialLinks = {};
+        socialCols.forEach(function (socialCol, idx) {
+          const url = String(row[header.indexOf(socialCol)] || "").trim();
+          if (url) {
+            socialLinks[socialCol] = url;
+          }
+        });
+
+        return {
+          name: String(row[nameIdx] || ""),
+          role: roleIdx >= 0 ? String(row[roleIdx] || "") : "",
+          year: yearIdx >= 0 ? String(row[yearIdx] || "") : "",
+          phone: phoneIdx >= 0 ? String(row[phoneIdx] || "") : "",
+          email: emailIdx >= 0 ? String(row[emailIdx] || "") : "",
+          imageUrl: imageFileName
+            ? findImageUrlByName(folder, imageFileName)
+            : "",
+          socialLinks: socialLinks,
+        };
+      });
+
+    // Group by year and sort
+    const yearGroups = {};
+    members.forEach(function (member) {
+      const year = member.year || "Unknown";
+      if (!yearGroups[year]) {
+        yearGroups[year] = [];
+      }
+      yearGroups[year].push(member);
+    });
+
+    // Sort members within each year by role priority, then by name
+    const rolePriority = {
+      founder: 0,
+      president: 1,
+      secretary: 2,
+      treasurer: 3,
+    };
+    Object.keys(yearGroups).forEach(function (year) {
+      yearGroups[year].sort(function (a, b) {
+        const aPriority =
+          rolePriority[String(a.role || "").toLowerCase()] !== undefined
+            ? rolePriority[String(a.role || "").toLowerCase()]
+            : 999;
+        const bPriority =
+          rolePriority[String(b.role || "").toLowerCase()] !== undefined
+            ? rolePriority[String(b.role || "").toLowerCase()]
+            : 999;
+        if (aPriority !== bPriority) return aPriority - bPriority;
+        return String(a.name).localeCompare(String(b.name));
+      });
+    });
+
+    // Sort years in descending order (newest first)
+    const sortedYears = Object.keys(yearGroups).sort().reverse();
+    const result = sortedYears.map(function (year) {
+      return {
+        year: year,
+        members: yearGroups[year],
+      };
+    });
+
+    return { years: result };
   });
 }
 

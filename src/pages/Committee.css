@@ -1,0 +1,211 @@
+.committee-page {
+  width: 100%;
+}
+
+.year-section {
+  margin-top: 48px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+}
+
+.year-section:first-of-type {
+  margin-top: 0;
+}
+
+.year-section:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.year-heading {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-h);
+  margin-bottom: 28px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--accent-bg);
+}
+
+@media (min-width: 768px) {
+  .year-heading {
+    font-size: 28px;
+    margin-bottom: 32px;
+  }
+}
+
+.member-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .member-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 28px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .member-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+}
+
+.member-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg);
+  transition: all 0.2s ease;
+  box-shadow: rgba(0, 0, 0, 0.05) 0 2px 4px;
+}
+
+.member-card:hover {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+
+.member-photo {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  background: var(--code-bg);
+  display: block;
+}
+
+.member-info {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (min-width: 768px) {
+  .member-info {
+    padding: 20px;
+    gap: 10px;
+  }
+}
+
+.member-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-h);
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .member-name {
+    font-size: 20px;
+  }
+}
+
+.member-role {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.member-contact {
+  font-size: 13px;
+  color: var(--text);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .member-contact {
+    font-size: 14px;
+    gap: 6px;
+  }
+}
+
+.member-contact a {
+  color: var(--accent);
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.member-contact a:hover {
+  text-decoration: underline;
+}
+
+.separator {
+  opacity: 0.5;
+}
+
+.member-socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.social-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--accent-bg);
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  line-height: 1;
+}
+
+@media (min-width: 768px) {
+  .social-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+}
+
+.social-icon:hover {
+  background: var(--accent);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+/* Platform-specific icon colors (hover state uses primary accent) */
+.social-icon.social-facebook {
+  --platform-color: #1877f2;
+}
+
+.social-icon.social-instagram {
+  --platform-color: #e4405f;
+}
+
+.social-icon.social-twitter {
+  --platform-color: #000;
+}
+
+.social-icon.social-linkedin {
+  --platform-color: #0a66c2;
+}
+
+.social-icon.social-github {
+  --platform-color: #333;
+}
+
+.social-icon.social-youtube {
+  --platform-color: #ff0000;
+}
+
+.social-icon.social-whatsapp {
+  --platform-color: #25d366;
+}
