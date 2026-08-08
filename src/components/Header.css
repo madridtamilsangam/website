@@ -14,7 +14,7 @@
   display: flex;
   align-items: center;
   gap: 20px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 @media (min-width: 768px) {
@@ -40,6 +40,8 @@
   text-decoration: none;
   margin-right: auto;
   transition: opacity 0.2s ease;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .brand:hover {
@@ -84,6 +86,8 @@
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
 @media (min-width: 768px) {

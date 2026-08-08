@@ -28,10 +28,10 @@ The logo will automatically update across all pages without any code changes.
 
 ## 1. Create the Drive structure
 
-Create a root folder (any name, e.g. "Tamil Sangam Website") containing:
+Create a root folder (any name, e.g. "Madrid Tamil Sangam Website") containing:
 
 ```
-Tamil Sangam Website/
+Madrid Tamil Sangam Website/
 ├── Home/                 # images referenced by the Home sheet
 ├── Committee/            # images (square 300×300px+) referenced by the Committee sheet
 ├── Gallery/
@@ -53,7 +53,7 @@ Tamil Sangam Website/
 
 ## 2. Create the Google Sheet
 
-Create one Spreadsheet (any name) with three tabs:
+Create one Spreadsheet (any name) with four tabs:
 
 **`Home`** — columns (first row = header): `Name`, `Details`, `ImageFileName`
 (the exact file name of an image inside the `Home` Drive folder).
@@ -63,6 +63,24 @@ Create one Spreadsheet (any name) with three tabs:
 **`Committee`** — columns: `Name`, `Role`, `Year`, `Email`, `Phone`, `ImageFileName`
 (the exact file name of an image inside the `Committee` Drive folder).
 Plus any social media platform columns (e.g. `Facebook`, `Instagram`, `LinkedIn`, `Twitter`, `GitHub`, `YouTube`, `WhatsApp`, `Website`, etc.) with direct URLs to member profiles.
+
+**`Footer`** — columns: `Section`, `Title`, `Content`, `Link` (Link is optional)
+
+- Section: `about`, `address`, `phone`, `email`, or any social platform name (facebook, instagram, linkedin, twitter, youtube, etc.)
+- Title: Display label (e.g., "About Us", "Address", "Phone", "Email")
+- Content: Text for about/address, number for phone, email address for email, or URL for social links
+- Link: Optional URL (currently unused but available for future use)
+
+Example Footer rows:
+| Section | Title | Content | Link |
+|---------|-------|---------|------|
+| about | About Us | Organization dedicated to preserving Tamil culture | |
+| address | Address | 123 Main Street, Madrid, Spain | |
+| phone | Phone | +34 XXX XXX XXX | |
+| email | Email | contact@madridtamilsangam.org | |
+| facebook | Facebook | https://facebook.com/madridtamilsangam | |
+| instagram | Instagram | https://instagram.com/madridtamilsangam | |
+| youtube | YouTube | https://www.youtube.com/channel/UCVg2vExlPnFA4_R5XWFN9CQ | |
 
 Note the Spreadsheet ID (the long string in its URL after `/d/`).
 
@@ -88,7 +106,7 @@ Re-run "Manage deployments" → edit → new version whenever you change `Code.g
 npm install -g @google/clasp
 clasp login
 cd appsscript
-clasp create --type webapp --title "Tamil Sangam Backend"
+clasp create --type webapp --title "Madrid Tamil Sangam Backend"
 # or: clasp clone <existing-script-id>
 clasp push
 clasp deploy
@@ -131,8 +149,9 @@ variables → Actions) so the GitHub Actions build can inject them:
 - `VITE_ADMIN_EMAILS` (comma-separated)
 - `VITE_ADMIN_DRIVE_ROOT_URL`, `VITE_ADMIN_HOME_SHEET_URL`,
   `VITE_ADMIN_CONTACT_SHEET_URL`, `VITE_ADMIN_COMMITTEE_SHEET_URL`,
-  `VITE_ADMIN_EVENTS_FOLDER_URL`, `VITE_ADMIN_GALLERY_FOLDER_URL`,
-  `VITE_ADMIN_APPS_SCRIPT_URL` (optional, shown as deep links on the Admin Dashboard)
+  `VITE_ADMIN_FOOTER_SHEET_URL`, `VITE_ADMIN_EVENTS_FOLDER_URL`,
+  `VITE_ADMIN_GALLERY_FOLDER_URL`, `VITE_ADMIN_APPS_SCRIPT_URL` (optional,
+  shown as deep links on the Admin Dashboard)
 
 ## 7. Enable GitHub Pages
 
@@ -151,3 +170,16 @@ After creating the Committee tab in your Google Sheet:
    VITE_ADMIN_COMMITTEE_SHEET_URL=https://docs.google.com/spreadsheets/d/1ybGO8VoovKRHWIK5TaKjMkaIwnrRCo3Q9mpvzAgIY3Q/edit?gid=COMMITTEE_GID#gid=COMMITTEE_GID
    ```
 4. This URL will appear as a link on the Admin Dashboard for easy access to edit committee members
+
+## 9. Get the Footer Sheet URL
+
+After creating the Footer tab in your Google Sheet:
+
+1. Open the spreadsheet and navigate to the Footer sheet
+2. Right-click the sheet tab at the bottom → "Copy sheet ID"
+3. In your `.env` file, replace `FOOTER_GID` with the copied ID in:
+   ```
+   VITE_ADMIN_FOOTER_SHEET_URL=https://docs.google.com/spreadsheets/d/1ybGO8VoovKRHWIK5TaKjMkaIwnrRCo3Q9mpvzAgIY3Q/edit?gid=FOOTER_GID#gid=FOOTER_GID
+   ```
+4. This URL will appear as a link on the Admin Dashboard for easy access to edit footer content
+5. To add or remove social media platforms in the footer, simply add new rows with the platform name in the Section column and the URL in the Content column (e.g., Section: `facebook`, Content: `https://facebook.com/...`)

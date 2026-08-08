@@ -46,3 +46,28 @@ export interface CommitteeYear {
 export interface CommitteeData {
   years: CommitteeYear[]
 }
+
+export interface FooterContact {
+  address?: string
+  phone?: string
+  email?: string
+}
+
+export interface FooterData {
+  about: string
+  contact: FooterContact
+  socials: Record<string, string>
+}
+
+export interface HighlightItem {
+  title: string
+  description: string
+  imageUrl: string
+  date: string
+  link?: string
+}
+
+export interface YouTubeVideo {
+  videoId: string
+  title: string
+}

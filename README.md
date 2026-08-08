@@ -1,4 +1,4 @@
-# Tamil Sangam Website
+# Madrid Tamil Sangam Website
 
 A static React + TypeScript + Vite site for the local Tamil community, hosted
 on GitHub Pages. All content storage (photos, event forms, contact/home text)

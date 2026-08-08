@@ -1,5 +1,5 @@
 {
-  "site": { "name": "Tamil Sangam" },
+  "site": { "name": "Madrid Tamil Sangam" },
   "nav": {
     "home": "Home",
     "gallery": "Gallery",
@@ -20,7 +20,13 @@
   "home": {
     "title": "Welcome",
     "empty": "No content has been added yet.",
-    "registration": "Registration"
+    "registration": "Registration",
+    "cta_headline": "Madrid Tamil Sangam",
+    "cta_subtitle": "Connect with us and be part of a vibrant Tamil cultural community. Register now to attend our events and celebrations.",
+    "cta_button": "Register Now",
+    "highlights_title": "Recent Highlights",
+    "gallery_title": "Photo Gallery",
+    "youtube_title": "Latest Videos"
   },
   "gallery": {
     "title": "Gallery",
@@ -62,7 +68,13 @@
     }
   },
   "footer": {
+    "about": "About",
+    "contact": "Contact",
+    "navigation": "Links",
     "followUs": "Follow Us",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
     "allRightsReserved": "All rights reserved."
   }
 }

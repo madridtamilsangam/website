@@ -15,6 +15,9 @@ const CONFIG = {
   HOME_SHEET_NAME: "Home",
   CONTACT_SHEET_NAME: "ContactUs",
   COMMITTEE_SHEET_NAME: "Committee",
+  FOOTER_SHEET_NAME: "Footer",
+  HIGHLIGHTS_SHEET_NAME: "Highlights",
+  YOUTUBE_SHEET_NAME: "YouTube",
   HOME_FOLDER_ID: "REPLACE_WITH_HOME_FOLDER_ID",
   GALLERY_ROOT_FOLDER_ID: "REPLACE_WITH_GALLERY_ROOT_FOLDER_ID",
   EVENTS_FOLDER_ID: "REPLACE_WITH_EVENTS_FOLDER_ID",
@@ -44,6 +47,21 @@ function doGet(e) {
         break;
       case "committee":
         data = getCommitteeData();
+        break;
+      case "footer":
+        data = withCache("footer", CONFIG.CACHE_TTL_SECONDS, function () {
+          return getFooterData();
+        });
+        break;
+      case "highlights":
+        data = withCache("highlights", CONFIG.CACHE_TTL_SECONDS, function () {
+          return getHighlightsData();
+        });
+        break;
+      case "youtube":
+        data = withCache("youtube", CONFIG.CACHE_TTL_SECONDS, function () {
+          return getYouTubeData();
+        });
         break;
       case "prefill-url":
         data = getPrefillUrl(
@@ -239,6 +257,132 @@ function getContactData() {
           phone: phoneIdx >= 0 ? String(row[phoneIdx] || "") : "",
           email: emailIdx >= 0 ? String(row[emailIdx] || "") : "",
           role: roleIdx >= 0 ? String(row[roleIdx] || "") : "",
+        };
+      });
+  });
+}
+
+// ---- Footer ----
+function getFooterData() {
+  return withCache("footer", CONFIG.CACHE_TTL_SECONDS, function () {
+    // Return empty footer if sheet doesn't exist yet
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(CONFIG.FOOTER_SHEET_NAME);
+    if (!sheet) {
+      return {
+        about: "",
+        contact: {},
+        socials: {},
+      };
+    }
+
+    const rows = sheet.getDataRange().getValues();
+
+    const result = {
+      about: "",
+      contact: {},
+      socials: {},
+    };
+
+    // Skip header row (row 1), process data rows (row 2+)
+    for (let i = 1; i < rows.length; i++) {
+      const section = String(rows[i][0] || "")
+        .toLowerCase()
+        .trim();
+      const title = String(rows[i][1] || "").trim();
+      const content = String(rows[i][2] || "").trim();
+
+      if (!section) continue; // Skip empty rows
+
+      if (section === "about") {
+        result.about = content;
+      } else if (section === "address") {
+        result.contact.address = content;
+      } else if (section === "phone") {
+        result.contact.phone = content;
+      } else if (section === "email") {
+        result.contact.email = content;
+      } else {
+        // Treat as social media platform
+        result.socials[section] = content;
+      }
+    }
+
+    return result;
+  });
+}
+
+// ---- Highlights ----
+function getHighlightsData() {
+  return withCache("highlights", CONFIG.CACHE_TTL_SECONDS, function () {
+    // Return empty array if sheet doesn't exist yet
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(CONFIG.HIGHLIGHTS_SHEET_NAME);
+    if (!sheet) {
+      return [];
+    }
+
+    const rows = sheet.getDataRange().getValues();
+    const header = rows.shift().map(function (h) {
+      return String(h).trim().toLowerCase();
+    });
+
+    const titleIdx = header.indexOf("title");
+    const descriptionIdx = header.indexOf("description");
+    const imageIdx = header.indexOf("imagefilename");
+    const dateIdx = header.indexOf("date");
+    const linkIdx = header.indexOf("link");
+    const folder = DriveApp.getFolderById(CONFIG.HOME_FOLDER_ID);
+
+    return rows
+      .filter(function (row) {
+        return row[titleIdx];
+      })
+      .map(function (row) {
+        const imageFileName =
+          imageIdx >= 0 ? String(row[imageIdx] || "").trim() : "";
+        const dateStr = dateIdx >= 0 ? String(row[dateIdx] || "").trim() : "";
+        const linkStr = linkIdx >= 0 ? String(row[linkIdx] || "").trim() : "";
+        return {
+          title: String(row[titleIdx] || ""),
+          description:
+            descriptionIdx >= 0 ? String(row[descriptionIdx] || "") : "",
+          imageUrl: imageFileName
+            ? findImageUrlByName(folder, imageFileName)
+            : "",
+          date: dateStr,
+          link: linkStr || undefined,
+        };
+      });
+  });
+}
+
+// ---- YouTube ----
+function getYouTubeData() {
+  return withCache("youtube", CONFIG.CACHE_TTL_SECONDS, function () {
+    // Return empty array if sheet doesn't exist yet
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(CONFIG.YOUTUBE_SHEET_NAME);
+    if (!sheet) {
+      return [];
+    }
+
+    const rows = sheet.getDataRange().getValues();
+    const header = rows.shift().map(function (h) {
+      return String(h).trim().toLowerCase();
+    });
+
+    const videoIdIdx = header.indexOf("videoid");
+    const titleIdx = header.indexOf("title");
+
+    return rows
+      .filter(function (row) {
+        return row[videoIdIdx];
+      })
+      .map(function (row) {
+        return {
+          videoId: String(row[videoIdIdx] || "").trim(),
+          title: titleIdx >= 0 ? String(row[titleIdx] || "") : "",
         };
       });
   });

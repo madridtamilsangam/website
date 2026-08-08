@@ -1,5 +1,5 @@
 import { APPS_SCRIPT_URL } from './config'
-import type { CommitteeData, ContactEntry, EventForm, GalleryFolder, GalleryPhoto, HomeItem } from '../types/api'
+import type { CommitteeData, ContactEntry, EventForm, FooterData, GalleryFolder, GalleryPhoto, HomeItem, HighlightItem, YouTubeVideo } from '../types/api'
 
 interface ApiEnvelope<T> {
   ok: boolean
@@ -76,4 +76,16 @@ export function getContact() {
 
 export function getCommittee() {
   return request<CommitteeData>('committee')
+}
+
+export function getFooter() {
+  return request<FooterData>('footer')
+}
+
+export function getHighlights() {
+  return request<HighlightItem[]>('highlights')
+}
+
+export function getYouTubeVideos() {
+  return request<YouTubeVideo[]>('youtube')
 }

@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { LOGO_URL } from '../services/config'
+import { LOGO_URL as logoUrl } from '../services/config'
 import LanguageSwitcher from './LanguageSwitcher'
 import './Header.css'
 
@@ -13,7 +13,7 @@ export default function Header() {
     <header className="site-header">
       <div className="site-header-inner">
         <NavLink to="/" end className="brand">
-          {LOGO_URL && <img src={LOGO_URL} alt="Logo" className="logo" />}
+          {logoUrl && <img src={logoUrl} alt="Logo" className="logo" />}
           <span className="brand-text">{t('site.name')}</span>
         </NavLink>
         <nav className="main-nav">
@@ -31,9 +31,6 @@ export default function Header() {
           </NavLink>
           <NavLink to="/committee" className={navClass}>
             {t('nav.committee')}
-          </NavLink>
-          <NavLink to="/admin" className={({ isActive }) => (isActive ? 'nav-link nav-link-admin active' : 'nav-link nav-link-admin')}>
-            {t('nav.admin')}
           </NavLink>
         </nav>
         <LanguageSwitcher />
