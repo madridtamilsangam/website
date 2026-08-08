@@ -19,7 +19,8 @@
   },
   "home": {
     "title": "Welcome",
-    "empty": "No content has been added yet."
+    "empty": "No content has been added yet.",
+    "registration": "Registration"
   },
   "gallery": {
     "title": "Gallery",
