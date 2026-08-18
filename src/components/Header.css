@@ -46,7 +46,9 @@
 }
 
 .brand-text {
-  display: none;
+  display: inline;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .brand-text-wrapper {
@@ -57,10 +59,10 @@
 }
 
 .brand-subtitle {
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 500;
   color: var(--text);
-  display: none;
+  display: block;
 }
 
 @media (min-width: 768px) {
