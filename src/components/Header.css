@@ -7,11 +7,11 @@
 .site-header-inner {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 10px 12px;
+  padding: 12px 8px;
   display: flex;
   align-items: center;
   gap: 12px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 }
 
 @media (min-width: 768px) {
@@ -101,11 +101,11 @@
 
 .main-nav {
   display: flex;
-  gap: 4px;
-  flex-wrap: nowrap;
+  gap: 6px;
+  flex-wrap: wrap;
   flex-shrink: 1;
   min-width: 0;
-  overflow: hidden;
+  align-items: center;
 }
 
 @media (min-width: 768px) {
@@ -116,18 +116,18 @@
 }
 
 .nav-link {
-  padding: 6px 10px;
+  padding: 6px 8px;
   border-radius: 6px;
   text-decoration: none;
   color: var(--text);
   font-weight: 500;
-  font-size: 12px;
+  font-size: 13px;
   transition: all 0.2s ease;
   white-space: nowrap;
-  flex-shrink: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex-shrink: 0;
+  min-width: auto;
+  overflow: visible;
+  display: inline-block;
 }
 
 @media (min-width: 768px) {
