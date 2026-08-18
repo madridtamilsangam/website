@@ -681,14 +681,14 @@
   color: white;
   padding: 60px 20px;
   text-align: center;
-  margin-bottom: 60px;
+  margin-bottom: 30px;
   border-radius: 12px;
 }
 
 @media (min-width: 768px) {
   .home-hero-cta {
     padding: 80px 40px;
-    margin-bottom: 80px;
+    margin-bottom: 40px;
   }
 }
 
@@ -769,13 +769,13 @@
 
 /* Highlights Section */
 .section-highlights {
-  margin-bottom: 60px;
+  margin-bottom: 30px;
   padding: 40px 20px;
 }
 
 @media (min-width: 768px) {
   .section-highlights {
-    margin-bottom: 80px;
+    margin-bottom: 40px;
     padding: 60px 20px;
   }
 }
@@ -908,14 +908,14 @@
 
 /* Gallery Section */
 .section-gallery {
-  margin-bottom: 60px;
+  margin-bottom: 30px;
   padding: 40px 20px;
   background: var(--bg);
 }
 
 @media (min-width: 768px) {
   .section-gallery {
-    margin-bottom: 80px;
+    margin-bottom: 40px;
     padding: 60px 20px;
   }
 }
@@ -1025,13 +1025,13 @@
 
 /* YouTube Section */
 .section-youtube {
-  margin-bottom: 60px;
+  margin-bottom: 30px;
   padding: 40px 20px;
 }
 
 @media (min-width: 768px) {
   .section-youtube {
-    margin-bottom: 80px;
+    margin-bottom: 40px;
     padding: 60px 20px;
   }
 }
