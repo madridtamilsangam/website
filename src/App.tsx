@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import Header from './components/Header'
 import Home from './pages/Home'
+import About from './pages/About'
 import Gallery from './pages/Gallery'
 import Events from './pages/Events'
 import Contact from './pages/Contact'
@@ -37,7 +38,7 @@ function Footer() {
     return (
       <footer className="app-footer">
         <div className="footer-content">
-          <p style={{ color: 'var(--text-error)', fontSize: '14px' }}>{t('common.error')}</p>
+          <p style={{ color: '#dc2626', fontSize: '14px' }}>{t('common.error')}</p>
         </div>
       </footer>
     )
@@ -50,7 +51,7 @@ function Footer() {
         <div className="footer-section footer-brand-col">
           {logoUrl && <img src={logoUrl} alt="Logo" className="footer-logo" />}
           <h3>{t('site.name')}</h3>
-          {footerData?.about && <p className="footer-about-text">{footerData.about}</p>}
+          <p className="footer-about-text">Asociación de Tamil</p>
         </div>
 
         {/* Column 2: Links */}
@@ -59,6 +60,9 @@ function Footer() {
           <nav className="footer-nav">
             <a href="#/" className="footer-nav-link">
               {t('nav.home')}
+            </a>
+            <a href="#/about" className="footer-nav-link">
+              {t('nav.about')}
             </a>
             <a href="#/gallery" className="footer-nav-link">
               {t('nav.gallery')}
@@ -162,6 +166,7 @@ function App() {
         <main className="app-content">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/gallery/:folderId" element={<Gallery />} />
             <Route path="/events" element={<Events />} />

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { getHighlights, getYouTubeVideos, getGalleryFolders, getGalleryPhotos } from '../services/api'
-import type { HighlightItem, YouTubeVideo, GalleryPhoto } from '../types/api'
+import type { HighlightItem, YouTubeVideo, GalleryPhoto, GalleryFolder } from '../types/api'
 import HighlightCard from '../components/HighlightCard'
 import YouTubeGrid from '../components/YouTubeGrid'
 
@@ -15,9 +15,19 @@ export default function Home() {
 
   const [videos, setVideos] = useState<YouTubeVideo[] | null>(null)
   const [videosError, setVideosError] = useState<string | null>(null)
+  const [videoPage, setVideoPage] = useState(1)
+  const VIDEOS_PER_PAGE = 6
 
-  const [galleryPhotos, setGalleryPhotos] = useState<GalleryPhoto[]>([])
+  // Gallery with per-folder photos
+  interface FolderWithPhotos {
+    folder: GalleryFolder
+    photos: GalleryPhoto[]
+  }
+  const [foldersWithPhotos, setFoldersWithPhotos] = useState<FolderWithPhotos[]>([])
+  const [galleryPhotos, setGalleryPhotos] = useState<(GalleryPhoto & { folderId: string })[]>([])
   const [galleryError, setGalleryError] = useState<string | null>(null)
+  const [galleryPage, setGalleryPage] = useState(1)
+  const PHOTOS_PER_PAGE = 10
 
   // Fetch highlights
   useEffect(() => {
@@ -50,28 +60,36 @@ export default function Home() {
     }
   }, [])
 
-  // Fetch gallery photos
+  // Fetch gallery photos - 2 per folder max
   useEffect(() => {
     let cancelled = false
     const fetchGallery = async () => {
       try {
         const folders = await getGalleryFolders()
-        const allPhotos: GalleryPhoto[] = []
+        const foldersData: FolderWithPhotos[] = []
+        const allPhotosWithFolderId: (GalleryPhoto & { folderId: string })[] = []
 
-        // Fetch photos from all folders
+        // Fetch up to 2 photos from each folder
         for (const folder of folders) {
           try {
             const photos = await getGalleryPhotos(folder.id)
-            allPhotos.push(...photos)
+            const folderPhotos = photos.slice(0, 2) // Take only first 2 photos
+            foldersData.push({ folder, photos: folderPhotos })
+            
+            // Add photos with folder info
+            folderPhotos.forEach(photo => {
+              allPhotosWithFolderId.push({ ...photo, folderId: folder.id })
+            })
           } catch (err) {
             console.error(`Error fetching photos from folder ${folder.name}:`, err)
           }
         }
 
         if (!cancelled) {
-          // Shuffle and take first 10
-          const shuffled = allPhotos.sort(() => Math.random() - 0.5)
-          setGalleryPhotos(shuffled.slice(0, 10))
+          setFoldersWithPhotos(foldersData)
+          // Set gallery photos for current page (0-9 for first page, 10-19 for second, etc.)
+          setGalleryPhotos(allPhotosWithFolderId)
+          setGalleryPage(1)
         }
       } catch (err) {
         if (!cancelled)
@@ -84,6 +102,10 @@ export default function Home() {
       cancelled = true
     }
   }, [])
+
+  const handlePhotoClick = (folderId: string, photoId: string) => {
+    navigate(`/gallery/${folderId}?photo=${photoId}`)
+  }
 
   return (
     <section className="page home-page">
@@ -136,17 +158,57 @@ export default function Home() {
         <section className="section-gallery">
           <div className="section-container">
             <h2>{t('home.gallery_title')}</h2>
-            <div className="gallery-showcase-grid">
-              {galleryPhotos.map((photo, index) => (
-                <div key={`${photo.id}-${index}`} className="gallery-item">
-                  <img
-                    src={photo.url}
-                    alt={photo.name}
-                    loading="lazy"
-                  />
-                </div>
-              ))}
-            </div>
+            {(() => {
+              const totalPages = Math.ceil(galleryPhotos.length / PHOTOS_PER_PAGE)
+              const startIdx = (galleryPage - 1) * PHOTOS_PER_PAGE
+              const paginatedPhotos = galleryPhotos.slice(startIdx, startIdx + PHOTOS_PER_PAGE)
+              
+              return (
+                <>
+                  <div className="gallery-showcase-grid">
+                    {paginatedPhotos.map((photo) => (
+                      <button
+                        key={photo.id}
+                        type="button"
+                        className="gallery-item"
+                        onClick={() => handlePhotoClick(photo.folderId, photo.id)}
+                        aria-label={photo.name}
+                        title="Click to view all photos in this folder"
+                      >
+                        <img
+                          src={photo.url}
+                          alt={photo.name}
+                          loading="lazy"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {/* Pagination controls */}
+                  {totalPages > 1 && (
+                    <div className="gallery-pagination">
+                      <button
+                        className="pagination-btn"
+                        onClick={() => setGalleryPage(Math.max(1, galleryPage - 1))}
+                        disabled={galleryPage === 1}
+                      >
+                        ← {t('common.previous') || 'Previous'}
+                      </button>
+                      <span className="pagination-info">
+                        {t('common.page') || 'Page'} {galleryPage} {t('common.of') || 'of'} {totalPages}
+                      </span>
+                      <button
+                        className="pagination-btn"
+                        onClick={() => setGalleryPage(Math.min(totalPages, galleryPage + 1))}
+                        disabled={galleryPage === totalPages}
+                      >
+                        {t('common.next') || 'Next'} →
+                      </button>
+                    </div>
+                  )}
+                </>
+              )
+            })()}
           </div>
         </section>
       ) : galleryError ? (
@@ -155,7 +217,7 @@ export default function Home() {
             <p className="error-text">{t('common.error')}</p>
           </div>
         </section>
-      ) : galleryPhotos !== undefined ? (
+      ) : galleryPhotos.length === 0 && foldersWithPhotos.length === 0 ? (
         <section className="section-gallery">
           <div className="section-container">
             <h2>{t('home.gallery_title')}</h2>
@@ -169,7 +231,12 @@ export default function Home() {
         <section className="section-youtube">
           <div className="section-container">
             <h2>{t('home.youtube_title')}</h2>
-            <YouTubeGrid videos={videos} />
+            <YouTubeGrid 
+              videos={videos} 
+              currentPage={videoPage}
+              videosPerPage={VIDEOS_PER_PAGE}
+              onPageChange={setVideoPage}
+            />
           </div>
         </section>
       ) : videosError ? (

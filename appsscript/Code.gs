@@ -18,10 +18,12 @@ const CONFIG = {
   FOOTER_SHEET_NAME: "Footer",
   HIGHLIGHTS_SHEET_NAME: "Highlights",
   YOUTUBE_SHEET_NAME: "YouTube",
+  ABOUTUS_SHEET_NAME: "AboutUs",
   HOME_FOLDER_ID: "REPLACE_WITH_HOME_FOLDER_ID",
   GALLERY_ROOT_FOLDER_ID: "REPLACE_WITH_GALLERY_ROOT_FOLDER_ID",
   EVENTS_FOLDER_ID: "REPLACE_WITH_EVENTS_FOLDER_ID",
   COMMITTEE_FOLDER_ID: "REPLACE_WITH_COMMITTEE_FOLDER_ID",
+  HIGHLIGHTS_FOLDER_ID: "REPLACE_WITH_HIGHLIGHTS_FOLDER_ID",
   CACHE_TTL_SECONDS: 21600, // 6 hours
 };
 
@@ -62,6 +64,14 @@ function doGet(e) {
         data = withCache("youtube", CONFIG.CACHE_TTL_SECONDS, function () {
           return getYouTubeData();
         });
+        break;
+      case "aboutus":
+        data = withCache("aboutus", CONFIG.CACHE_TTL_SECONDS, function () {
+          return getAboutUsData();
+        });
+        break;
+      case "pdf-content":
+        data = getPdfContent(requireParam(e, "id"));
         break;
       case "prefill-url":
         data = getPrefillUrl(
@@ -329,26 +339,25 @@ function getHighlightsData() {
 
     const titleIdx = header.indexOf("title");
     const descriptionIdx = header.indexOf("description");
-    const imageIdx = header.indexOf("imagefilename");
+    const imageIdIdx = header.indexOf("image_id");
     const dateIdx = header.indexOf("date");
     const linkIdx = header.indexOf("link");
-    const folder = DriveApp.getFolderById(CONFIG.HOME_FOLDER_ID);
 
     return rows
       .filter(function (row) {
         return row[titleIdx];
       })
       .map(function (row) {
-        const imageFileName =
-          imageIdx >= 0 ? String(row[imageIdx] || "").trim() : "";
+        const imageId =
+          imageIdIdx >= 0 ? String(row[imageIdIdx] || "").trim() : "";
         const dateStr = dateIdx >= 0 ? String(row[dateIdx] || "").trim() : "";
         const linkStr = linkIdx >= 0 ? String(row[linkIdx] || "").trim() : "";
         return {
           title: String(row[titleIdx] || ""),
           description:
             descriptionIdx >= 0 ? String(row[descriptionIdx] || "") : "",
-          imageUrl: imageFileName
-            ? findImageUrlByName(folder, imageFileName)
+          imageUrl: imageId
+            ? "https://drive.google.com/thumbnail?id=" + imageId + "&sz=w1000"
             : "",
           date: dateStr,
           link: linkStr || undefined,
@@ -385,6 +394,76 @@ function getYouTubeData() {
           title: titleIdx >= 0 ? String(row[titleIdx] || "") : "",
         };
       });
+  });
+}
+
+// ---- About Us ----
+function getAboutUsData() {
+  return withCache("aboutus", CONFIG.CACHE_TTL_SECONDS, function () {
+    // Return empty structure if sheet doesn't exist yet
+    const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    const sheet = ss.getSheetByName(CONFIG.ABOUTUS_SHEET_NAME);
+    if (!sheet) {
+      return {
+        sections: [],
+        pdfFileId: "",
+      };
+    }
+
+    const rows = sheet.getDataRange().getValues();
+    const header = rows.shift().map(function (h) {
+      return String(h).trim().toLowerCase();
+    });
+
+    const typeIdx = header.indexOf("type");
+    const orderIdx = header.indexOf("order");
+    const enTitleIdx = header.indexOf("en_title");
+    const taTitleIdx = header.indexOf("ta_title");
+    const enContentIdx = header.indexOf("en_content");
+    const taContentIdx = header.indexOf("ta_content");
+    const imageIdIdx = header.indexOf("image_id");
+    const valueIdx = header.indexOf("value");
+
+    let pdfFileId = "";
+    let pdfTitleEn = "";
+    let pdfTitleTa = "";
+    const sections = [];
+
+    rows.forEach(function (row) {
+      const type = String(row[typeIdx] || "")
+        .trim()
+        .toLowerCase();
+
+      if (type === "section") {
+        const order = orderIdx >= 0 ? Number(row[orderIdx] || 0) : 0;
+        sections.push({
+          order: order,
+          en_title: enTitleIdx >= 0 ? String(row[enTitleIdx] || "") : "",
+          ta_title: taTitleIdx >= 0 ? String(row[taTitleIdx] || "") : "",
+          en_content: enContentIdx >= 0 ? String(row[enContentIdx] || "") : "",
+          ta_content: taContentIdx >= 0 ? String(row[taContentIdx] || "") : "",
+          image_id: imageIdIdx >= 0 ? String(row[imageIdIdx] || "").trim() : "",
+        });
+      } else if (type === "pdf") {
+        const value = valueIdx >= 0 ? String(row[valueIdx] || "").trim() : "";
+        // Extract file ID from full Google Drive URL or use as-is if it's just an ID
+        pdfFileId = extractFileIdFromDriveUrl(value);
+        pdfTitleEn = enTitleIdx >= 0 ? String(row[enTitleIdx] || "") : "";
+        pdfTitleTa = taTitleIdx >= 0 ? String(row[taTitleIdx] || "") : "";
+      }
+    });
+
+    // Sort sections by order
+    sections.sort(function (a, b) {
+      return a.order - b.order;
+    });
+
+    return {
+      sections: sections,
+      pdfFileId: pdfFileId,
+      pdfTitle_en: pdfTitleEn,
+      pdfTitle_ta: pdfTitleTa,
+    };
   });
 }
 
@@ -494,7 +573,36 @@ function getCommitteeData() {
   });
 }
 
+// ---- PDF content proxy ----
+// Google Drive's download URLs don't send CORS headers, so the browser can't
+// fetch them directly. Instead we read the file server-side here and hand the
+// browser base64 bytes over our own (CORS-friendly) JSON endpoint.
+function getPdfContent(fileId) {
+  const file = DriveApp.getFileById(fileId);
+  const blob = file.getBlob();
+  return {
+    base64: Utilities.base64Encode(blob.getBytes()),
+    mimeType: blob.getContentType(),
+  };
+}
+
 // ---- Shared helpers ----
+// Extract file ID from Google Drive URL or return as-is if already just an ID
+function extractFileIdFromDriveUrl(input) {
+  if (!input) return "";
+
+  // Match pattern: /d/{fileId}/ in URLs like:
+  // https://drive.google.com/file/d/FILE_ID/view?usp=drive_link
+  // https://drive.google.com/open?id=FILE_ID
+  const fileIdMatch = input.match(/\/d\/([a-zA-Z0-9_-]+)\//);
+  if (fileIdMatch) {
+    return fileIdMatch[1];
+  }
+
+  // If no URL pattern found, assume it's already just a file ID
+  return input;
+}
+
 function getSheet(sheetName) {
   const spreadsheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
   const sheet = spreadsheet.getSheetByName(sheetName);

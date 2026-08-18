@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams, Link } from 'react-router'
+import { useNavigate, useParams, useSearchParams, Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import Lightbox from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
@@ -11,6 +11,7 @@ import ErrorMessage from '../components/ErrorMessage'
 export default function Gallery() {
   const { t } = useTranslation()
   const { folderId } = useParams()
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const [folders, setFolders] = useState<GalleryFolder[] | null>(null)
   const [photos, setPhotos] = useState<GalleryPhoto[] | null>(null)
@@ -39,9 +40,21 @@ export default function Gallery() {
     if (!folderId) return
     let cancelled = false
     setPhotos(null)
+    setLightboxIndex(null)
     getGalleryPhotos(folderId)
       .then((data) => {
-        if (!cancelled) setPhotos(data)
+        if (!cancelled) {
+          setPhotos(data)
+          
+          // Auto-open lightbox if photoId is provided in query params
+          const photoId = searchParams.get('photo')
+          if (photoId) {
+            const index = data.findIndex(p => p.id === photoId)
+            if (index !== -1) {
+              setLightboxIndex(index)
+            }
+          }
+        }
       })
       .catch((err) => {
         if (!cancelled) setError(err instanceof Error ? err.message : String(err))
@@ -49,7 +62,7 @@ export default function Gallery() {
     return () => {
       cancelled = true
     }
-  }, [folderId])
+  }, [folderId, searchParams])
 
   if (error) return <ErrorMessage message={error} />
   if (!folders) return <Loading />

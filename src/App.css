@@ -26,6 +26,38 @@
   }
 }
 
+/* Shared page title style — used by Gallery/Events/Contact Us/Committee/About Us */
+.gallery-page > h1,
+.events-page > h1,
+.contact-page > h1,
+.committee-page > h1,
+.about-page h1 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: var(--text-h);
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .gallery-page > h1,
+  .events-page > h1,
+  .contact-page > h1,
+  .committee-page > h1,
+  .about-page h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-page > h1,
+  .events-page > h1,
+  .contact-page > h1,
+  .committee-page > h1,
+  .about-page h1 {
+    font-size: 1.5rem;
+  }
+}
+
 .app-footer {
   border-top: 1px solid var(--border);
   padding: 40px 20px 24px;
@@ -123,7 +155,8 @@
 .footer-brand-col {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  text-align: center;
   gap: 12px;
 }
 
@@ -594,20 +627,28 @@
 
 .language-switcher {
   display: flex;
-  gap: 6px;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .lang-btn {
   border: 1px solid var(--border);
   background: var(--bg);
   border-radius: 6px;
-  padding: 8px 12px;
+  padding: 6px 9px;
   cursor: pointer;
   color: var(--text);
   font: inherit;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 12px;
   transition: all 0.2s ease;
+}
+
+@media (min-width: 768px) {
+  .lang-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
 }
 
 .lang-btn:hover {
@@ -922,6 +963,9 @@
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: rgba(0, 0, 0, 0.08) 0 2px 4px;
+  border: none;
+  padding: 0;
+  margin: 0;
 }
 
 .gallery-item:hover {
@@ -939,6 +983,44 @@
 
 .gallery-item:hover img {
   transform: scale(1.08);
+}
+
+.gallery-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 20px 0;
+}
+
+.gallery-pagination .pagination-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.gallery-pagination .pagination-btn:hover:not(:disabled) {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.gallery-pagination .pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.gallery-pagination .pagination-info {
+  font-size: 14px;
+  color: var(--text);
+  min-width: 120px;
+  text-align: center;
 }
 
 /* YouTube Section */
@@ -1092,4 +1174,66 @@
   font-size: 16px;
   padding: 20px;
   text-align: center;
+}
+
+/* YouTube Pagination */
+.youtube-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+
+.pagination-btn {
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.pagination-info .page-number,
+.pagination-info .page-total {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .youtube-pagination {
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .pagination-btn {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+
+  .pagination-info {
+    font-size: 14px;
+  }
 }

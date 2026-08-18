@@ -14,11 +14,17 @@ export default function Header() {
       <div className="site-header-inner">
         <NavLink to="/" end className="brand">
           {logoUrl && <img src={logoUrl} alt="Logo" className="logo" />}
-          <span className="brand-text">{t('site.name')}</span>
+          <div className="brand-text-wrapper">
+            <span className="brand-text">{t('site.name')}</span>
+            <span className="brand-subtitle">Asociación de Tamil</span>
+          </div>
         </NavLink>
         <nav className="main-nav">
           <NavLink to="/" end className={navClass}>
             {t('nav.home')}
+          </NavLink>
+          <NavLink to="/about" className={navClass}>
+            {t('nav.about')}
           </NavLink>
           <NavLink to="/gallery" className={navClass}>
             {t('nav.gallery')}

@@ -71,3 +71,24 @@ export interface YouTubeVideo {
   videoId: string
   title: string
 }
+
+export interface AboutUsSection {
+  order: number
+  en_title: string
+  ta_title: string
+  en_content: string
+  ta_content: string
+  image_id?: string
+}
+
+export interface AboutUsData {
+  sections: AboutUsSection[]
+  pdfFileId: string
+  pdfTitle_en?: string
+  pdfTitle_ta?: string
+}
+
+export interface PdfContent {
+  base64: string
+  mimeType: string
+}

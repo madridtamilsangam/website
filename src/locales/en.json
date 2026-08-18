@@ -2,6 +2,7 @@
   "site": { "name": "Madrid Tamil Sangam" },
   "nav": {
     "home": "Home",
+    "about": "About Us",
     "gallery": "Gallery",
     "events": "Events",
     "contact": "Contact Us",
@@ -32,6 +33,11 @@
     "title": "Gallery",
     "empty": "No gallery folders have been added yet.",
     "noPhotos": "No photos in this folder yet."
+  },
+  "about": {
+    "title": "About Us",
+    "empty": "No about content has been added yet.",
+    "pdfTitle": "Documentation"
   },
   "events": {
     "title": "Events",

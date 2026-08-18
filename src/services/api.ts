@@ -1,5 +1,5 @@
 import { APPS_SCRIPT_URL } from './config'
-import type { CommitteeData, ContactEntry, EventForm, FooterData, GalleryFolder, GalleryPhoto, HomeItem, HighlightItem, YouTubeVideo } from '../types/api'
+import type { CommitteeData, ContactEntry, EventForm, FooterData, GalleryFolder, GalleryPhoto, HomeItem, HighlightItem, YouTubeVideo, AboutUsData, PdfContent } from '../types/api'
 
 interface ApiEnvelope<T> {
   ok: boolean
@@ -88,4 +88,12 @@ export function getHighlights() {
 
 export function getYouTubeVideos() {
   return request<YouTubeVideo[]>('youtube')
+}
+
+export function getAboutUs() {
+  return request<AboutUsData>('aboutus')
+}
+
+export function getPdfContent(fileId: string) {
+  return request<PdfContent>('pdf-content', { id: fileId })
 }
