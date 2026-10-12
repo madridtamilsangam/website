@@ -682,6 +682,93 @@
   padding-top: 20px;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.button-secondary {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+}
+
+.button-secondary:hover {
+  background: var(--accent-bg);
+}
+
+/* Registration CTA sits at the bottom of the page, so it is more compact than a hero */
+.home-registration-cta {
+  padding: 40px 20px;
+  margin: 30px 0 0;
+}
+
+@media (min-width: 768px) {
+  .home-registration-cta {
+    padding: 56px 40px;
+    margin-top: 40px;
+  }
+}
+
+.home-registration-cta .cta-heading {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 12px;
+  color: white;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .home-registration-cta .cta-heading {
+    font-size: 36px;
+  }
+}
+
+/* Highlights | Discussions split */
+.home-split-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .home-split-grid {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: 40px;
+  }
+}
+
+.home-split .subblock-title {
+  font-size: 24px;
+  margin: 0 0 20px;
+  text-align: left;
+}
+
+@media (min-width: 768px) {
+  .home-split .subblock-title {
+    font-size: 28px;
+  }
+}
+
+.home-split .highlights-grid {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .home-split .highlights-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+}
+
 /* Hero CTA Section */
 .home-hero-cta {
   background: linear-gradient(135deg, var(--accent) 0%, var(--accent) 100%);

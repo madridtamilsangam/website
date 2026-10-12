@@ -1,0 +1,270 @@
+.section-sponsors {
+  margin-bottom: 30px;
+  padding: 24px 0 8px;
+}
+
+.sponsors-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.sponsors-header h2 {
+  margin: 0;
+  font-size: 26px;
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .sponsors-header h2 {
+    font-size: 32px;
+  }
+}
+
+.sponsors-toggle {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  border-radius: 999px;
+  width: 40px;
+  height: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  cursor: pointer;
+}
+
+.sponsors-toggle:hover {
+  border-color: var(--accent);
+}
+
+.sponsors-marquee {
+  overflow: hidden;
+  /* Soft fade at both edges */
+  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+
+.sponsors-track {
+  list-style: none;
+  margin: 0;
+  padding: 8px 0;
+  display: flex;
+  gap: 20px;
+  width: max-content;
+}
+
+.sponsors-marquee .sponsors-track {
+  animation: sponsors-scroll 40s linear infinite;
+}
+
+.sponsors-marquee:hover .sponsors-track,
+.sponsors-marquee:focus-within .sponsors-track,
+.sponsors-track.paused {
+  animation-play-state: paused;
+}
+
+@keyframes sponsors-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    /* Track holds two identical halves; the 20px gap keeps the loop seamless */
+    transform: translateX(calc(-50% - 10px));
+  }
+}
+
+.sponsors-static .sponsors-track {
+  width: auto;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.sponsor-card {
+  flex: 0 0 auto;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  box-shadow: rgba(0, 0, 0, 0.05) 0 2px 4px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.sponsor-card:hover {
+  border-color: var(--accent-border);
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+
+.sponsor-tier-platinum {
+  width: 240px;
+  border-color: var(--accent-border);
+}
+
+.sponsor-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  text-decoration: none;
+  color: inherit;
+  text-align: center;
+}
+
+.sponsor-logo {
+  width: 100%;
+  height: 80px;
+  object-fit: contain;
+  /* Logos are usually designed for light backgrounds */
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+.sponsor-tier-platinum .sponsor-logo {
+  height: 100px;
+}
+
+.sponsor-logo-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+.sponsor-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-h);
+  line-height: 1.3;
+}
+
+.sponsor-tagline {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.sponsor-link-button {
+  appearance: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sponsor-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.sponsor-dialog {
+  width: min(360px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  padding: 20px;
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.sponsor-dialog h3 {
+  margin: 0 0 4px;
+  font-size: 18px;
+  color: var(--text-h);
+}
+
+.sponsor-dialog-hint {
+  margin: 0 0 14px;
+  font-size: 14px;
+}
+
+.sponsor-dialog-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sponsor-dialog-option {
+  display: block;
+  padding: 10px 14px;
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+  color: var(--text-h);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.sponsor-dialog-option:hover,
+.sponsor-dialog-option:focus-visible {
+  background: var(--accent-bg);
+}
+
+.sponsor-dialog-close {
+  margin-top: 16px;
+  padding: 6px 16px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.sponsors-cta {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.sponsors-cta a {
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sponsors-marquee {
+    overflow-x: auto;
+    mask-image: none;
+    -webkit-mask-image: none;
+  }
+
+  .sponsors-marquee .sponsors-track {
+    animation: none;
+  }
+
+  .sponsor-card[data-dup] {
+    display: none;
+  }
+
+  .sponsors-toggle {
+    display: none;
+  }
+}

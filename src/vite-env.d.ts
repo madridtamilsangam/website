@@ -9,6 +9,9 @@ interface ImportMetaEnv {
   readonly VITE_ADMIN_CONTACT_SHEET_URL?: string
   readonly VITE_ADMIN_EVENTS_FOLDER_URL?: string
   readonly VITE_ADMIN_GALLERY_FOLDER_URL?: string
+  readonly VITE_ADMIN_SPONSORS_SHEET_URL?: string
+  readonly VITE_ADMIN_SPONSORS_FOLDER_URL?: string
+  readonly VITE_ADMIN_DISCUSSIONS_SHEET_URL?: string
   readonly VITE_ADMIN_APPS_SCRIPT_URL?: string
 }
 

@@ -34,6 +34,7 @@ Create a root folder (any name, e.g. "Madrid Tamil Sangam Website") containing:
 Madrid Tamil Sangam Website/
 ├── Home/                 # images referenced by the Home sheet
 ├── Committee/            # images (square 300×300px+) referenced by the Committee sheet
+├── Sponsors/             # sponsor logos referenced by the Sponsors sheet tab
 ├── Gallery/
 │   ├── <Menu Name 1>/    # each subfolder becomes a Gallery submenu
 │   ├── <Menu Name 2>/
@@ -44,7 +45,7 @@ Madrid Tamil Sangam Website/
     └── ...
 ```
 
-- Share the **Home**, **Committee**, and **all Gallery subfolders** as
+- Share the **Home**, **Committee**, **Sponsors**, and **all Gallery subfolders** as
   "Anyone with the link — Viewer" (Share → General access). This lets the
   public site show images via Drive's public thumbnail URLs.
 - The **Events** folder does not need to be publicly shared — the Apps Script
@@ -53,7 +54,8 @@ Madrid Tamil Sangam Website/
 
 ## 2. Create the Google Sheet
 
-Create one Spreadsheet (any name) with four tabs:
+Create one Spreadsheet (any name) with these tabs (`Home`, `ContactUs`, `Committee`,
+`Footer`, `Highlights`, `YouTube`, `AboutUs`, `Sponsors`):
 
 **`Home`** — columns (first row = header): `Name`, `Details`, `ImageFileName`
 (the exact file name of an image inside the `Home` Drive folder).
@@ -84,21 +86,79 @@ Example Footer rows:
 
 Note the Spreadsheet ID (the long string in its URL after `/d/`).
 
+**`Sponsors`** — shown as the revolving block at the top of the Home page.
+Run `setupSponsorsSheet()` once from the Apps Script editor to create the tab
+with headers, or create it by hand. Columns (first row = header):
+
+| Column | Required | Notes |
+|---|---|---|
+| `Name` | yes | Shown under the logo |
+| `LogoFileName` | yes | Exact file name of the logo inside the Drive `Sponsors/` folder (PNG/WebP, transparent background, ~400×200px) |
+| `Website` | no | Sponsor's website (`https://…`; a bare `example.com` is accepted) |
+| `WhatsAppGroup` | no | WhatsApp group invite link, `https://chat.whatsapp.com/…`. Phone-number (`wa.me`) links are not accepted |
+| `OtherLink` | no | Any other link (`https://…`), e.g. an event page or a brochure |
+| `OtherLabel` | no | Button text for `OtherLink`, e.g. `Event details`. Defaults to "More info" |
+| `Tier` | no | `Platinum`, `Gold`, `Silver`, `Community` — controls order (and Platinum is shown larger) |
+| `Order` | no | Number; sorts sponsors inside the same tier |
+| `Active` | no | `FALSE` hides the sponsor without deleting the row |
+| `StartDate` / `EndDate` | no | Sponsor is only shown inside this period (`YYYY-MM-DD`) |
+| `Tagline_en` / `Tagline_ta` | no | Short line under the name |
+
+A sponsor with one link opens it directly when the card is clicked. A sponsor with
+several links opens a small menu on click listing the available options (Visit website,
+Join WhatsApp group, and the other link).
+
+Changes appear within about an hour (Apps Script cache). Only `http(s)` links
+are ever sent to the browser.
+
+### Discussions spreadsheet (separate file)
+
+Discussions/queries posted by visitors live in their **own** Google Spreadsheet,
+separate from the content sheet above:
+
+1. Create a new empty Spreadsheet named e.g. "Madrid Tamil Sangam – Discussions"
+   and put its ID in `CONFIG.DISCUSSIONS_SPREADSHEET_ID` (step 3).
+2. In the Apps Script editor run `setupDiscussionsSpreadsheet()` once. It creates
+   the tabs `Threads`, `Replies`, `Topics` (pre-filled with default topics —
+   edit freely, columns `Key`, `Label_en`, `Label_ta`, `Order`), `Reports` and
+   `Banned`.
+3. Do **not** share this spreadsheet publicly — it contains author email
+   addresses. Only the Apps Script (running as you) reads/writes it; emails are
+   never sent to the browser.
+
+Moderation (all done from the website while signed in with an `ADMIN_EMAILS`
+account, or directly in the sheet): hide/unhide, pin, close, delete. User
+reports appear in the `Reports` tab. To block someone, add their email to the
+`Banned` tab. Posts are published immediately (post-moderation).
+
 ## 3. Deploy the Apps Script backend
 
 1. Open [script.google.com](https://script.google.com) with the admin Google
    account and create a new project (or use `clasp` — see below).
-2. Copy the contents of [`appsscript/Code.gs`](appsscript/Code.gs) into the
-   script editor, and copy [`appsscript/appsscript.json`](appsscript/appsscript.json)
+2. Copy the contents of **both** [`appsscript/Code.gs`](appsscript/Code.gs) and
+   [`appsscript/Discussions.gs`](appsscript/Discussions.gs) into the script
+   editor (two files), and copy [`appsscript/appsscript.json`](appsscript/appsscript.json)
    into the project's manifest (Project Settings → "Show appsscript.json").
 3. Fill in the `CONFIG` object at the top of `Code.gs` with your Spreadsheet ID
    and folder IDs from steps 1–2.
-4. Deploy → New deployment → type "Web app".
+4. Project Settings → **Script properties** → add (needed for Discussions):
+   - `GOOGLE_CLIENT_ID` — the same OAuth client id as `VITE_GOOGLE_CLIENT_ID` (step 4 below); used to verify sign-in tokens server-side
+   - `ADMIN_EMAILS` — comma-separated moderator Google emails
+   - `SITE_URL` — (optional) public site URL used in reply-notification emails; defaults to `https://madridtamilsangam.github.io/website/`
+5. Run `setupDiscussionsSpreadsheet()` (and optionally `setupSponsorsSheet()`)
+   once from the editor and **authorize** the requested permissions (Sheets,
+   Drive, external requests for token verification, and sending email for reply
+   notifications).
+6. Deploy → New deployment → type "Web app".
    - Execute as: **Me**
    - Who has access: **Anyone**
-5. Copy the resulting Web App URL — this goes into `VITE_APPS_SCRIPT_URL`.
+7. Copy the resulting Web App URL — this goes into `VITE_APPS_SCRIPT_URL`.
 
-Re-run "Manage deployments" → edit → new version whenever you change `Code.gs`.
+Re-run "Manage deployments" → edit → new version whenever you change the scripts
+(keeps the same URL). Discussions add a write endpoint (`doPost`); every write
+requires a Google ID token that the server verifies (audience, issuer, expiry)
+before anything is saved. Reply emails are sent through your account's mail
+quota (~100/day for consumer accounts); when the quota is low they are skipped.
 
 ### Optional: keep Code.gs version-controlled with clasp
 
@@ -124,9 +184,10 @@ Copy `.clasp.json.example` to `.clasp.json` (git-ignored) and fill in the real
    `https://madridtamilsangam.github.io`.
 4. Copy the Client ID into `VITE_GOOGLE_CLIENT_ID`.
 
-This powers both the Admin sign-in gate and the Events sign-in gate. It does
-not grant access to your Drive/Sheets/Forms — it only lets the site read the
-signer's name/email to personalize the page.
+This powers the Admin sign-in gate, the Events sign-in gate and posting in
+Discussions. It does not grant access to your Drive/Sheets/Forms — it only lets
+the site read the signer's name/email/photo. Also add the same Client ID to the
+`GOOGLE_CLIENT_ID` script property (step 3) so the backend can verify tokens.
 
 ## 5. Configure each Google Form
 
@@ -150,7 +211,9 @@ variables → Actions) so the GitHub Actions build can inject them:
 - `VITE_ADMIN_DRIVE_ROOT_URL`, `VITE_ADMIN_HOME_SHEET_URL`,
   `VITE_ADMIN_CONTACT_SHEET_URL`, `VITE_ADMIN_COMMITTEE_SHEET_URL`,
   `VITE_ADMIN_FOOTER_SHEET_URL`, `VITE_ADMIN_EVENTS_FOLDER_URL`,
-  `VITE_ADMIN_GALLERY_FOLDER_URL`, `VITE_ADMIN_APPS_SCRIPT_URL` (optional,
+  `VITE_ADMIN_GALLERY_FOLDER_URL`, `VITE_ADMIN_SPONSORS_SHEET_URL`,
+  `VITE_ADMIN_SPONSORS_FOLDER_URL`, `VITE_ADMIN_DISCUSSIONS_SHEET_URL`,
+  `VITE_ADMIN_APPS_SCRIPT_URL` (optional,
   shown as deep links on the Admin Dashboard)
 
 ## 7. Enable GitHub Pages

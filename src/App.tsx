@@ -6,6 +6,9 @@ import Home from './pages/Home'
 import About from './pages/About'
 import Gallery from './pages/Gallery'
 import Events from './pages/Events'
+import Discussions from './pages/Discussions'
+import NewDiscussion from './pages/NewDiscussion'
+import DiscussionThread from './pages/DiscussionThread'
 import Contact from './pages/Contact'
 import Committee from './pages/Committee'
 import Admin from './pages/Admin'
@@ -69,6 +72,9 @@ function Footer() {
             </a>
             <a href="#/events" className="footer-nav-link">
               {t('nav.events')}
+            </a>
+            <a href="#/discussions" className="footer-nav-link">
+              {t('nav.discussions')}
             </a>
             <a href="#/contact" className="footer-nav-link">
               {t('nav.contact')}
@@ -171,6 +177,9 @@ function App() {
             <Route path="/gallery/:folderId" element={<Gallery />} />
             <Route path="/events" element={<Events />} />
             <Route path="/events/:formId" element={<Events />} />
+            <Route path="/discussions" element={<Discussions />} />
+            <Route path="/discussions/new" element={<NewDiscussion />} />
+            <Route path="/discussions/:threadId" element={<DiscussionThread />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/committee" element={<Committee />} />
             <Route path="/registration" element={<Registration />} />

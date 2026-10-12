@@ -92,3 +92,67 @@ export interface PdfContent {
   base64: string
   mimeType: string
 }
+
+export interface SponsorItem {
+  name: string
+  logoUrl: string
+  website?: string
+  whatsappGroupUrl?: string
+  otherUrl?: string
+  otherLabel?: string
+  tier?: string
+  tagline_en?: string
+  tagline_ta?: string
+}
+
+export type DiscussionStatus = 'open' | 'resolved' | 'closed'
+
+export interface DiscussionTopic {
+  key: string
+  label_en: string
+  label_ta: string
+}
+
+export interface DiscussionThread {
+  id: string
+  topic: string
+  title: string
+  body: string
+  authorName: string
+  authorPicture?: string
+  createdAt: string
+  lastActivityAt: string
+  status: DiscussionStatus
+  pinned: boolean
+  replyCount: number
+  hidden?: boolean
+  // Only present for the signed-in author / admins
+  canEdit?: boolean
+  notifyAuthor?: boolean
+}
+
+export interface DiscussionReply {
+  id: string
+  threadId: string
+  body: string
+  authorName: string
+  authorPicture?: string
+  createdAt: string
+  editedAt?: string
+  isAccepted: boolean
+  hidden?: boolean
+  canEdit?: boolean
+}
+
+export interface DiscussionListResult {
+  threads: DiscussionThread[]
+  total: number
+  page: number
+  pageSize: number
+}
+
+export interface DiscussionDetail {
+  thread: DiscussionThread
+  replies: DiscussionReply[]
+  viewerIsAdmin?: boolean
+}

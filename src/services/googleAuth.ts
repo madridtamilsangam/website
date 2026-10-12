@@ -2,6 +2,10 @@ export interface GoogleProfile {
   email: string
   name: string
   picture?: string
+  // Raw Google ID token + expiry (epoch seconds); sent to the backend on discussion writes,
+  // where it is verified server-side.
+  idToken?: string
+  exp?: number
 }
 
 /**
@@ -27,5 +31,7 @@ export function profileFromCredential(credential: string): GoogleProfile {
     email: String(claims.email ?? ''),
     name: String(claims.name ?? claims.email ?? ''),
     picture: claims.picture ? String(claims.picture) : undefined,
+    idToken: credential,
+    exp: typeof claims.exp === 'number' ? claims.exp : undefined,
   }
 }

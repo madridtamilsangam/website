@@ -13,6 +13,9 @@ const raw: Record<string, string | undefined> = {
   footerSheet: import.meta.env.VITE_ADMIN_FOOTER_SHEET_URL,
   eventsFolder: import.meta.env.VITE_ADMIN_EVENTS_FOLDER_URL,
   galleryFolder: import.meta.env.VITE_ADMIN_GALLERY_FOLDER_URL,
+  sponsorsSheet: import.meta.env.VITE_ADMIN_SPONSORS_SHEET_URL,
+  sponsorsFolder: import.meta.env.VITE_ADMIN_SPONSORS_FOLDER_URL,
+  discussionsSheet: import.meta.env.VITE_ADMIN_DISCUSSIONS_SHEET_URL,
   appsScriptProject: import.meta.env.VITE_ADMIN_APPS_SCRIPT_URL,
 }
 

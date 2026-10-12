@@ -1,14 +1,19 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
-import { getHighlights, getYouTubeVideos, getGalleryFolders, getGalleryPhotos } from '../services/api'
-import type { HighlightItem, YouTubeVideo, GalleryPhoto, GalleryFolder } from '../types/api'
+import { getHighlights, getYouTubeVideos, getGalleryFolders, getGalleryPhotos, getSponsors } from '../services/api'
+import type { HighlightItem, YouTubeVideo, GalleryPhoto, GalleryFolder, SponsorItem } from '../types/api'
 import HighlightCard from '../components/HighlightCard'
 import YouTubeGrid from '../components/YouTubeGrid'
+import SponsorsCarousel from '../components/SponsorsCarousel'
+import RecentDiscussions from '../components/RecentDiscussions'
+import RegistrationCta from '../components/RegistrationCta'
 
 export default function Home() {
   const navigate = useNavigate()
   const { t } = useTranslation()
+
+  const [sponsors, setSponsors] = useState<SponsorItem[]>([])
 
   const [highlights, setHighlights] = useState<HighlightItem[] | null>(null)
   const [highlightsError, setHighlightsError] = useState<string | null>(null)
@@ -28,6 +33,21 @@ export default function Home() {
   const [galleryError, setGalleryError] = useState<string | null>(null)
   const [galleryPage, setGalleryPage] = useState(1)
   const PHOTOS_PER_PAGE = 10
+
+  // Fetch sponsors (the block simply stays hidden if there are none or the request fails)
+  useEffect(() => {
+    let cancelled = false
+    getSponsors()
+      .then((data) => {
+        if (!cancelled) setSponsors(data)
+      })
+      .catch((err) => {
+        console.error('Error fetching sponsors:', err)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   // Fetch highlights
   useEffect(() => {
@@ -109,49 +129,40 @@ export default function Home() {
 
   return (
     <section className="page home-page">
-      {/* Section 1: Hero CTA */}
-      <div className="home-hero-cta">
-        <div className="cta-content">
-          <h1>{t('home.cta_headline')}</h1>
-          <p className="cta-subtitle">{t('home.cta_subtitle')}</p>
-          <button
-            onClick={() => navigate('/registration')}
-            className="cta-button"
-          >
-            {t('home.cta_button')}
-          </button>
-        </div>
-      </div>
+      <h1 className="sr-only">{t('site.name')}</h1>
 
-      {/* Section 2: Recent Highlights */}
-      {highlights && highlights.length > 0 ? (
-        <section className="section-highlights">
-          <div className="section-container">
-            <h2>{t('home.highlights_title')}</h2>
-            <div className="highlights-grid">
-              {highlights.map((highlight, index) => (
-                <HighlightCard
-                  key={`${highlight.title}-${index}`}
-                  highlight={highlight}
-                />
-              ))}
+      {/* Section 1: Sponsors */}
+      <SponsorsCarousel sponsors={sponsors} />
+
+      {/* Section 2: Recent Highlights + Discussions/Queries */}
+      <section className="section-highlights home-split">
+        <div className="section-container">
+          <div className="home-split-grid">
+            <div className="home-split-main">
+              <h2 className="subblock-title">{t('home.highlights_title')}</h2>
+              {highlights && highlights.length > 0 ? (
+                <div className="highlights-grid">
+                  {highlights.map((highlight, index) => (
+                    <HighlightCard
+                      key={`${highlight.title}-${index}`}
+                      highlight={highlight}
+                    />
+                  ))}
+                </div>
+              ) : highlightsError ? (
+                <p className="error-text">{t('common.error')}</p>
+              ) : highlights !== null ? (
+                <p className="empty-text">{t('home.empty')}</p>
+              ) : (
+                <p className="empty-text">{t('common.loading')}</p>
+              )}
             </div>
+            <aside className="home-split-side">
+              <RecentDiscussions />
+            </aside>
           </div>
-        </section>
-      ) : highlightsError ? (
-        <section className="section-highlights">
-          <div className="section-container">
-            <p className="error-text">{t('common.error')}</p>
-          </div>
-        </section>
-      ) : highlights !== null ? (
-        <section className="section-highlights">
-          <div className="section-container">
-            <h2>{t('home.highlights_title')}</h2>
-            <p className="empty-text">{t('home.empty')}</p>
-          </div>
-        </section>
-      ) : null}
+        </div>
+      </section>
 
       {/* Section 3: Gallery Showcase */}
       {galleryPhotos.length > 0 ? (
@@ -253,6 +264,9 @@ export default function Home() {
           </div>
         </section>
       ) : null}
+
+      {/* Section 5: Registration */}
+      <RegistrationCta />
     </section>
   )
 }

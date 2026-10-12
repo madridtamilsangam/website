@@ -32,6 +32,9 @@ export default function Header() {
           <NavLink to="/events" className={navClass}>
             {t('nav.events')}
           </NavLink>
+          <NavLink to="/discussions" className={navClass}>
+            {t('nav.discussions')}
+          </NavLink>
           <NavLink to="/contact" className={navClass}>
             {t('nav.contact')}
           </NavLink>

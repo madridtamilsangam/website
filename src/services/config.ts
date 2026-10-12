@@ -16,8 +16,10 @@ export const ADMIN_EMAILS: string[] = (import.meta.env.VITE_ADMIN_EMAILS ?? '')
 
 /**
  * NOTE: this is a UX convenience check only, not a security boundary.
- * The real protection for Drive/Sheets/Forms is Google's own sharing permissions —
- * this site never writes data, it only decides whether to show admin deep links.
+ * The real protection for Drive/Sheets/Forms is Google's own sharing permissions.
+ * Discussion moderation rights are enforced server-side by the Apps Script
+ * (ADMIN_EMAILS script property) after verifying the Google ID token — this
+ * client-side list only decides whether to show admin deep links.
  */
 export function isAdminEmail(email: string | undefined | null): boolean {
   if (!email) return false

@@ -2,9 +2,18 @@
  * Tamil Sangam website backend — Google Apps Script Web App.
  *
  * Deploy as: Execute as "Me" (the admin account that owns this script),
- * Access: "Anyone". This script is intentionally READ-ONLY (doGet only) —
- * there is no doPost and no mutation endpoint. All real edits to content
- * happen directly in Google Drive / Sheets / Forms, never through this API.
+ * Access: "Anyone".
+ *
+ * - doGet is READ-ONLY and serves all site content (sheets / Drive / forms).
+ * - doPost is used ONLY by the Discussions feature. Every doPost request must
+ *   carry a Google ID token which is verified server-side (signature, audience,
+ *   expiry) via Google's tokeninfo endpoint before anything is written.
+ *   Discussion data lives in a SEPARATE spreadsheet (DISCUSSIONS_SPREADSHEET_ID).
+ *
+ * Script Properties required for Discussions (Project Settings → Script properties):
+ *   GOOGLE_CLIENT_ID  – the same OAuth client id used by the website
+ *   ADMIN_EMAILS      – comma-separated admin/moderator Google emails
+ *   SITE_URL          – (optional) public site URL used in notification emails
  *
  * See SETUP.md at the repo root for full setup instructions.
  */
@@ -19,12 +28,19 @@ const CONFIG = {
   HIGHLIGHTS_SHEET_NAME: "Highlights",
   YOUTUBE_SHEET_NAME: "YouTube",
   ABOUTUS_SHEET_NAME: "AboutUs",
+  SPONSORS_SHEET_NAME: "Sponsors",
   HOME_FOLDER_ID: "REPLACE_WITH_HOME_FOLDER_ID",
   GALLERY_ROOT_FOLDER_ID: "REPLACE_WITH_GALLERY_ROOT_FOLDER_ID",
   EVENTS_FOLDER_ID: "REPLACE_WITH_EVENTS_FOLDER_ID",
   COMMITTEE_FOLDER_ID: "REPLACE_WITH_COMMITTEE_FOLDER_ID",
   HIGHLIGHTS_FOLDER_ID: "REPLACE_WITH_HIGHLIGHTS_FOLDER_ID",
+  SPONSORS_FOLDER_ID: "REPLACE_WITH_SPONSORS_FOLDER_ID",
+  // Separate spreadsheet dedicated to discussions (tabs: Threads, Replies,
+  // Topics, Reports, Banned). Run setupDiscussionsSpreadsheet() once to create them.
+  DISCUSSIONS_SPREADSHEET_ID: "REPLACE_WITH_DISCUSSIONS_SPREADSHEET_ID",
   CACHE_TTL_SECONDS: 21600, // 6 hours
+  SPONSORS_CACHE_TTL_SECONDS: 3600, // 1 hour (sponsorship dates are time-sensitive)
+  DISCUSSIONS_CACHE_TTL_SECONDS: 60,
 };
 
 function doGet(e) {
@@ -70,6 +86,31 @@ function doGet(e) {
           return getAboutUsData();
         });
         break;
+      case "sponsors":
+        data = getSponsorsData();
+        break;
+      case "discussion-topics":
+        data = getDiscussionTopics();
+        break;
+      case "discussions":
+        data = listDiscussions({
+          topic: e.parameter.topic || "",
+          sort: e.parameter.sort || "activity",
+          q: e.parameter.q || "",
+          page: Number(e.parameter.page || 1),
+          pageSize: Number(e.parameter.pageSize || 10),
+        });
+        break;
+      case "discussions-recent":
+        data = listDiscussions({
+          sort: "activity",
+          page: 1,
+          pageSize: Math.min(Number(e.parameter.limit || 6), 20),
+        }).threads;
+        break;
+      case "discussion":
+        data = getDiscussionDetail(requireParam(e, "id"), null);
+        break;
       case "pdf-content":
         data = getPdfContent(requireParam(e, "id"));
         break;
@@ -83,6 +124,23 @@ function doGet(e) {
       default:
         return jsonOutput({ ok: false, error: "Unknown action: " + action });
     }
+    return jsonOutput({ ok: true, data: data });
+  } catch (err) {
+    return jsonOutput({
+      ok: false,
+      error: err && err.message ? err.message : String(err),
+    });
+  }
+}
+
+// Write endpoint — Discussions only. Body is JSON sent as text/plain (avoids a
+// CORS preflight, which Apps Script cannot answer): { action, idToken, ...payload }
+function doPost(e) {
+  try {
+    const body = JSON.parse((e.postData && e.postData.contents) || "{}");
+    const action = String(body.action || "").toLowerCase();
+    const user = verifyIdToken(String(body.idToken || ""));
+    const data = handleDiscussionAction(action, body, user);
     return jsonOutput({ ok: true, data: data });
   } catch (err) {
     return jsonOutput({
@@ -465,6 +523,139 @@ function getAboutUsData() {
       pdfTitle_ta: pdfTitleTa,
     };
   });
+}
+
+// ---- Sponsors ----
+// Tab "Sponsors" columns (header row, case-insensitive): Name, LogoFileName,
+// Website, WhatsAppGroup, OtherLink, OtherLabel, Tier, Order, Active, StartDate,
+// EndDate, Tagline_en, Tagline_ta. Logos live in the Drive folder SPONSORS_FOLDER_ID.
+function getSponsorsData() {
+  return withCache(
+    "sponsors",
+    CONFIG.SPONSORS_CACHE_TTL_SECONDS,
+    function () {
+      const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+      const sheet = ss.getSheetByName(CONFIG.SPONSORS_SHEET_NAME);
+      if (!sheet) return [];
+
+      const rows = sheet.getDataRange().getValues();
+      const header = rows.shift().map(function (h) {
+        return String(h).trim().toLowerCase();
+      });
+      const col = function (name) {
+        return header.indexOf(name);
+      };
+      const cell = function (row, name) {
+        const idx = col(name);
+        return idx >= 0 ? row[idx] : "";
+      };
+      const text = function (row, name) {
+        return String(cell(row, name) || "").trim();
+      };
+
+      const folder = DriveApp.getFolderById(CONFIG.SPONSORS_FOLDER_ID);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const tierRank = { platinum: 0, gold: 1, silver: 2, community: 3 };
+
+      return rows
+        .filter(function (row) {
+          if (!text(row, "name")) return false;
+          const active = text(row, "active").toLowerCase();
+          if (active === "false" || active === "no" || active === "0")
+            return false;
+          const start = parseSheetDate(cell(row, "startdate"));
+          const end = parseSheetDate(cell(row, "enddate"));
+          if (start && today < start) return false;
+          if (end && today > end) return false;
+          return true;
+        })
+        .map(function (row) {
+          const logoFileName = text(row, "logofilename");
+          const tier = text(row, "tier");
+          const order = Number(cell(row, "order"));
+          return {
+            name: text(row, "name"),
+            logoUrl: logoFileName ? findImageUrlByName(folder, logoFileName) : "",
+            website: normalizeHttpUrl(text(row, "website")),
+            whatsappGroupUrl: normalizeWhatsAppGroupUrl(text(row, "whatsappgroup")),
+            otherUrl: normalizeHttpUrl(text(row, "otherlink")),
+            otherLabel: text(row, "otherlabel").slice(0, 40),
+            tier: tier,
+            tagline_en: text(row, "tagline_en"),
+            tagline_ta: text(row, "tagline_ta"),
+            _rank:
+              tierRank[tier.toLowerCase()] !== undefined
+                ? tierRank[tier.toLowerCase()]
+                : 4,
+            _order: isNaN(order) || cell(row, "order") === "" ? 9999 : order,
+          };
+        })
+        .sort(function (a, b) {
+          if (a._rank !== b._rank) return a._rank - b._rank;
+          if (a._order !== b._order) return a._order - b._order;
+          return a.name.localeCompare(b.name);
+        })
+        .map(function (s) {
+          delete s._rank;
+          delete s._order;
+          return s;
+        });
+    },
+  );
+}
+
+function parseSheetDate(value) {
+  if (!value) return null;
+  const d = value instanceof Date ? new Date(value.getTime()) : new Date(String(value));
+  if (isNaN(d.getTime())) return null;
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+// Only http(s) links are ever returned to the browser (blocks javascript: etc).
+function normalizeHttpUrl(input) {
+  const value = String(input || "").trim();
+  if (!value) return "";
+  if (/^https?:\/\/\S+$/i.test(value)) return value;
+  if (/^[^\s\/:]+\.[^\s\/:]+(\/\S*)?$/.test(value)) return "https://" + value;
+  return "";
+}
+
+// Only WhatsApp group invite links (https://chat.whatsapp.com/...) are accepted.
+function normalizeWhatsAppGroupUrl(input) {
+  const url = normalizeHttpUrl(input);
+  return /^https:\/\/chat\.whatsapp\.com\/\S+$/i.test(url) ? url : "";
+}
+
+// One-time helper: creates the Sponsors tab with the expected headers.
+function setupSponsorsSheet() {
+  const ss = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+  const headers = [
+    "Name",
+    "LogoFileName",
+    "Website",
+    "WhatsAppGroup",
+    "OtherLink",
+    "OtherLabel",
+    "Tier",
+    "Order",
+    "Active",
+    "StartDate",
+    "EndDate",
+    "Tagline_en",
+    "Tagline_ta",
+  ];
+  let sheet = ss.getSheetByName(CONFIG.SPONSORS_SHEET_NAME);
+  if (!sheet) sheet = ss.insertSheet(CONFIG.SPONSORS_SHEET_NAME);
+  // Writes headers into an existing but empty tab; leaves existing data alone.
+  if (sheet.getLastRow() === 0) {
+    sheet
+      .getRange(1, 1, 1, headers.length)
+      .setValues([headers])
+      .setFontWeight("bold");
+    sheet.setFrozenRows(1);
+  }
 }
 
 // ---- Committee ----

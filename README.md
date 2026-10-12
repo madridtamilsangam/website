@@ -3,10 +3,16 @@
 A static React + TypeScript + Vite site for the local Tamil community, hosted
 on GitHub Pages. All content storage (photos, event forms, contact/home text)
 lives in the admin's Google account — Drive, Sheets and Forms — and is served
-to the site through a small read-only Google Apps Script Web App. No servers,
-no database, no exposed secrets.
+to the site through a small Google Apps Script Web App (read-only, except for the
+Discussions feature whose writes require a server-verified Google sign-in). No
+servers, no database, no exposed secrets.
 
-- **Home** — pulled from a "Home" Google Sheet + images in a "Home" Drive folder.
+- **Home** — Sponsors carousel, Highlights + Discussions/Queries, Gallery, Videos,
+  then the Registration call-to-action.
+- **Sponsors** — revolving block on Home fed by a "Sponsors" Sheet tab + logos in a
+  "Sponsors" Drive folder; each sponsor links to its website, WhatsApp group and/or another link (a menu lets visitors choose when there are several).
+- **Discussions** (`/discussions`) — visitors ask questions and reply after signing in
+  with Google; stored in a separate "Discussions" spreadsheet, moderated by admins.
 - **Gallery** — each subfolder of a Drive "Gallery" folder becomes a submenu of photos.
 - **Events** — each Google Form in a Drive "Events" folder becomes a submenu; visitors
   sign in with Google before opening the form (name/email prefilled).
