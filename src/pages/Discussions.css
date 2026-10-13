@@ -33,10 +33,6 @@
   background: var(--bg);
 }
 
-.discussions-panel .subblock-title {
-  margin-bottom: 12px;
-}
-
 .recent-discussions,
 .discussion-list,
 .discussion-replies {
