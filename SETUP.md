@@ -144,7 +144,7 @@ reports appear in the `Reports` tab. To block someone, add their email to the
 4. Project Settings → **Script properties** → add (needed for Discussions):
    - `GOOGLE_CLIENT_ID` — the same OAuth client id as `VITE_GOOGLE_CLIENT_ID` (step 4 below); used to verify sign-in tokens server-side
    - `ADMIN_EMAILS` — comma-separated moderator Google emails
-   - `SITE_URL` — (optional) public site URL used in reply-notification emails; defaults to `https://madridtamilsangam.github.io/website/`
+   - `SITE_URL` — (optional) public site URL used in reply-notification emails; defaults to `https://madridtamilsangam.es/`
 5. Run `setupDiscussionsSpreadsheet()` (and optionally `setupSponsorsSheet()`)
    once from the editor and **authorize** the requested permissions (Sheets,
    Drive, external requests for token verification, and sending email for reply
@@ -180,7 +180,8 @@ Copy `.clasp.json.example` to `.clasp.json` (git-ignored) and fill in the real
 1. Go to [Google Cloud Console](https://console.cloud.google.com/) → APIs &
    Services → Credentials.
 2. Create an **OAuth 2.0 Client ID** of type "Web application".
-3. Under "Authorized JavaScript origins", add your GitHub Pages URL, e.g.
+3. Under "Authorized JavaScript origins", add the origins visitors use:
+   `https://madridtamilsangam.es` and, if needed,
    `https://madridtamilsangam.github.io`.
 4. Copy the Client ID into `VITE_GOOGLE_CLIENT_ID`.
 

@@ -21,7 +21,7 @@ const DISC = {
   EDIT_WINDOW_MS: 24 * 60 * 60 * 1000,
   RATE_LIMIT_MAX: 8, // writes per window per user
   RATE_LIMIT_WINDOW_S: 600,
-  DEFAULT_SITE_URL: "https://madridtamilsangam.github.io/website/",
+  DEFAULT_SITE_URL: "https://madridtamilsangam.es/",
 };
 
 const THREAD_HEADERS = [
